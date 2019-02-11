@@ -9,25 +9,31 @@
 #include "Layer.hpp"
 
 
-Layer::Layer(unsigned long num_neurons) : m_num_neurons(num_neurons)
+Layer::Layer(unsigned long num_neurons) : m_isOutputLayer(false), m_isInputLayer(true), m_num_neurons(num_neurons)
 {
-    m_isOutputLayer = true;
-    m_neurons.reserve(m_num_neurons);
+    m_neurons.reserve(m_num_neurons); // +1 for bias
     for (unsigned long i = 0; i < m_num_neurons; i++)
     {
         m_neurons.push_back(Neuron());
     }
 }
 
-
-Layer::Layer(unsigned long num_neurons, Layer& next_layer)
-    : m_num_neurons(num_neurons), m_num_next_layer_neurons(next_layer.number_of_neurons())
+Layer::Layer(unsigned long num_neurons, Layer& prev_layer, bool isOutputLayer)
+    : m_isOutputLayer(isOutputLayer), m_isInputLayer(false), m_num_neurons(num_neurons), m_num_prev_layer_neurons(prev_layer.number_of_neurons())
 {
-    m_isOutputLayer = false;
-    m_neurons.reserve(m_num_neurons);
-    for (unsigned long i = 0; i <= m_num_neurons; i++) // "<=" to add a bias neuron
+    if (m_isOutputLayer)
     {
-        m_neurons.push_back(Neuron(m_num_neurons, m_num_next_layer_neurons));
+        m_neurons.reserve(m_num_neurons);
+    }
+    else // add bias neuron
+    {
+        m_neurons.reserve(m_num_neurons + 1);
+        m_neurons.push_back(Neuron(m_num_prev_layer_neurons));
+    }
+    
+    for (unsigned long i = 0; i < m_num_neurons; i++)
+    {
+        m_neurons.push_back(Neuron(m_num_prev_layer_neurons));
     }
 }
 
@@ -38,32 +44,21 @@ unsigned long Layer::number_of_neurons() const
 
 std::vector<double> Layer::feed_forward(std::vector<double> inputs)
 {
-    std::vector<double> values_to_forward;
-    if (m_isOutputLayer)
+    std::vector<double> neuron_values;
+    if (m_isInputLayer)
     {
-        values_to_forward.resize(m_num_neurons);
+        neuron_values.resize(m_num_neurons);
         return inputs;
     }
     else
-        values_to_forward.resize(m_num_next_layer_neurons);
+        neuron_values.resize(m_num_neurons);
     
-    std::vector<double> current_neuron_values;
-    
-    for (unsigned long i = 0; i < inputs.size(); i++) // for each input
+    for (unsigned long i = 0; i < m_num_neurons; i++) // for each neuron
     {
-        current_neuron_values = m_neurons.at(i).fire(inputs.at(i));
-        for (unsigned long j = 0; j < current_neuron_values.size(); j ++)
-        {
-            values_to_forward.at(j) += current_neuron_values.at(j);
-        }
+        neuron_values[i] = m_neurons.at(i).fire(inputs);
+        
+        // apply sigmoid function
+        neuron_values.at(i) = 1 / (1 + exp(-neuron_values.at(i)));
     }
-    
-    // add bias neuron value
-    current_neuron_values = m_neurons.at(m_num_neurons).fire(1);
-    for (unsigned long j = 0; j < current_neuron_values.size(); j ++)
-    {
-        values_to_forward.at(j) += current_neuron_values.at(j);
-    }
-    
-    return values_to_forward;
+    return neuron_values;
 }

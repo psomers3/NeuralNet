@@ -13,16 +13,15 @@
 Brain::Brain(std::vector<unsigned long> layers) : m_num_layers(layers.size())
 {
     m_layers.reserve(m_num_layers);
-    
-    // add output layer
-    m_layers.push_back(Layer(layers.at(m_num_layers-1)));
-    
-    for (unsigned long i = 0; i < m_num_layers - 1; i++)
+    // add input layer
+    m_layers.push_back(Layer(layers.at(0)));
+    for (unsigned long i = 1; i < m_num_layers; i++)
     {
-        m_layers.push_back(Layer(layers.at(m_num_layers - i - 2), m_layers.at(i)));
+        if (i == m_num_layers - 1)
+            m_layers.push_back(Layer(layers.at(i), m_layers.at(i-1), true));
+        else
+            m_layers.push_back(Layer(layers.at(i), m_layers.at(i-1), false));
     }
-    
-    std::reverse(m_layers.begin(), m_layers.end());
 }
 
 unsigned long Brain::make_decision(std::vector<double> inputs)

@@ -18,13 +18,17 @@ public:
     Neuron();
     
     /// Constructor for all other layer neurons
-    Neuron(unsigned long num_neurons_this_layer, unsigned long num_next_layer_neurons);
+    Neuron(unsigned long num_prev_layer_neurons);
     
     /// Destructor
     ~Neuron(){}
     
     /// multiply through by coefficients
-    std::vector<double> fire(double input);
+    double fire(std::vector<double> input);
+    
+    /// for bias neuron
+    double fire(int input);
+
     
 private:
     std::vector<double> m_coefficients;
