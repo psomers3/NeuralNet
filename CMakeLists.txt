@@ -23,3 +23,5 @@ target_compile_options(NeuralNet PRIVATE
 -Wextra
 -g
 )
+
+add_subdirectory(test)
