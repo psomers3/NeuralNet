@@ -11,12 +11,12 @@
 #include <cmath>
 #include "Neuron.hpp"
 
-Neuron::Neuron()
+Neuron::Neuron(): m_coefficients(new VectorDbl())
 {
-    m_coefficients.push_back(1);
+    m_coefficients->push_back(1);
 }
 
-Neuron::Neuron(unsigned long num_prev_layer_neurons)
+Neuron::Neuron(unsigned long num_prev_layer_neurons): m_coefficients(new VectorDbl())
 {
     double He_factor = std::sqrt(2./num_prev_layer_neurons);
     
@@ -26,37 +26,61 @@ Neuron::Neuron(unsigned long num_prev_layer_neurons)
     
     std::normal_distribution<double> distribution (0.0,1.0);
     
-    m_coefficients.reserve(num_prev_layer_neurons);
+    m_coefficients->reserve(num_prev_layer_neurons);
     
     for (unsigned long i = 0; i < num_prev_layer_neurons; i++)
     {
-        m_coefficients.push_back(distribution(generator) * He_factor);
+        m_coefficients->push_back(distribution(generator) * He_factor);
     }
 }
 
-double Neuron::fire(std::vector<double> input)
+double Neuron::fire(VectorDbl input)
 {
-    double value_to_return = 0;
+    m_value = 0;
     unsigned long num_inputs = input.size();
-    unsigned long num_coeff = m_coefficients.size();
+    unsigned long num_coeff = m_coefficients->size();
     
     for (unsigned long i = 0; i < num_inputs; i++)
     {
-        value_to_return += m_coefficients.at(i) * input.at(i);
+        m_value += m_coefficients->at(i) * input.at(i);
     }
     if (num_inputs < num_coeff)
-        value_to_return += m_coefficients.at(num_coeff - 1); // bias term "*1"
+        m_value += m_coefficients->at(num_coeff - 1); // bias term "*1"
     
-    return value_to_return;
+    return m_value;
 }
 
-double Neuron::fire(int input)
+void Neuron::set_value(double input_value)
 {
-    double value_to_return = 0;
+    m_value = input_value;
+}
+
+double Neuron::calculate_derivative()
+{
+    m_derivative = m_value * (1 - m_value);
+    return m_derivative;
+}
+
+double Neuron::calculate_delta(double error)
+{
+    m_delta = error * calculate_derivative();
+    return m_delta;
+}
+
+VectorDbl Neuron::propogate_error(double error, VectorDbl inputs_from_prev_layer, const double learning_rate)
+{
+    std::vector<double> return_error(m_coefficients->size()-1);
     
-    for (unsigned long i = 0; i < m_coefficients.size(); i++)
+    this->calculate_delta(error);
+    
+    for (unsigned long i = 0; i < m_coefficients->size() - 1; i++)
     {
-        value_to_return += m_coefficients.at(i) * input;
+        // find contribution to error
+        return_error.at(i) = m_delta * m_coefficients->at(i);
+        // upate coefficient
+        m_coefficients->at(i) += learning_rate * m_delta * inputs_from_prev_layer.at(i);
     }
-    return value_to_return;
+    m_coefficients->at(m_coefficients->size()-1) += learning_rate * m_delta; // bias coefficient update
+    
+    return return_error;
 }

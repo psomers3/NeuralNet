@@ -1,6 +1,5 @@
 //
 //  Neuron.hpp
-//  aUSie
 //
 //  Created by Peter Somers on 2/10/19.
 //  Copyright © 2019 Peter Somers. All rights reserved.
@@ -10,6 +9,7 @@
 #define Neuron_hpp
 
 #include <vector>
+#include "custom_types.hpp"
 
 class Neuron
 {
@@ -24,14 +24,22 @@ public:
     ~Neuron(){}
     
     /// multiply through by coefficients
-    double fire(std::vector<double> input);
+    double fire(VectorDbl input);
     
-    /// for bias neuron
-    double fire(int input);
-
+    /// set value
+    void set_value(double input_value);
+    
+    VectorDbl propogate_error(double error, VectorDbl inputs_from_prev_layer, const double learning_rate);
     
 private:
-    std::vector<double> m_coefficients;
+    double m_value = 0;
+    double m_derivative = 0;
+    double m_delta = 0;
+    UnqPtrVectorDbl m_coefficients;
+    double calculate_delta(double error);
+
+    double calculate_derivative();
+
 };
 
 #endif /* Neuron_hpp */
