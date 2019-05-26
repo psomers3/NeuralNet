@@ -14,32 +14,32 @@ int main()
 {
     std::cout << "Creating a brain with 2 inputs and 2 outputs and 2 hidden layers.\n";
     std::cout << "The first hidden layer has 4 neurons and the 2nd has 3... ";
-    Brain brain({2,4,1});
+    Brain brain({2,4,3,2});
     std::cout << "Done.\n";
-    std::vector<double> output(1);
-    std::vector<double> error(1);
+    std::vector<double> output(2);
+    std::vector<double> error(2);
     std::vector<double> training_values = {0,0};
     std::vector<double> correct_output = {0};
     
-    std::cout << "Training the brain to be an XOR gate with 500 random samples...\n";
+    std::cout << "Training the brain to be an XOR gate with 25000 random samples...\n";
     
-    for (unsigned long i = 0; i < 2500; i++)
+    for (unsigned long i = 0; i < 25000; i++)
     {
         training_values = {fmod(rand(), 2), fmod(rand(), 2)};
         output = brain.get_output(training_values);
         
         if ((training_values.at(0) == 0) && (training_values.at(1) == 0))
-            correct_output = {0};
+            correct_output = {1, 0};
         if ((training_values.at(0) == 0) && (training_values.at(1) == 1))
-            correct_output = {1};
+            correct_output = {0, 1};
         if ((training_values.at(0) == 1) && (training_values.at(1) == 0))
-            correct_output = {1};
+            correct_output = {0, 1};
         if ((training_values.at(0) == 1) && (training_values.at(1) == 1))
-            correct_output = {0};
+            correct_output = {1, 0};
         
-        for (int j = 0; j < 1; j++)
+        for (int j = 0; j < 2; j++)
         {
-            error.at(j) = correct_output.at(j) - output.at(j);
+            error.at(j) = (correct_output.at(j) - output.at(j));
         }
         brain.back_propagate(error);
     }
@@ -47,13 +47,13 @@ int main()
     std::cout << "Training Complete. Testing samples...\n";
     std::cout << "input values      Output\n";
     training_values = {0, 0};
-    std::cout << "0      0          " << brain.get_output(training_values)[0] << "\n";
+    std::cout << "0      0          " << brain.make_decision(training_values) << "\n";
     training_values = {0, 1};
-    std::cout << "0      1          " << brain.get_output(training_values)[0] << "\n";
+    std::cout << "0      1          " << brain.make_decision(training_values) << "\n";
     training_values = {1, 0};
-    std::cout << "1      0          " << brain.get_output(training_values)[0] << "\n";
+    std::cout << "1      0          " << brain.make_decision(training_values) << "\n";
     training_values = {1, 1};
-    std::cout << "1      1          " << brain.get_output(training_values)[0] << "\n";
+    std::cout << "1      1          " << brain.make_decision(training_values) << "\n";
 
     return 0;
 }

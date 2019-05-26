@@ -71,9 +71,6 @@ std::vector<double>& Layer::feed_forward(std::vector<double>& inputs)
     for (unsigned long i = 0; i < m_num_neurons; i++) // for each neuron
     {
         m_outputs[i] = m_neurons.at(i)->fire(inputs);
-        
-        // apply sigmoid function
-        m_outputs.at(i) = 1 / (1 + exp(-m_outputs.at(i)));
     }
     return m_outputs;
 }

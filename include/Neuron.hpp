@@ -37,7 +37,7 @@ private:
     double m_delta = 0;
     UnqPtrVectorDbl m_coefficients;
     double calculate_delta(double error);
-
+    void transfer();
     double calculate_derivative();
 
 };

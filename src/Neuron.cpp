@@ -47,7 +47,13 @@ double Neuron::fire(VectorDbl input)
     if (num_inputs < num_coeff)
         m_value += m_coefficients->at(num_coeff - 1); // bias term "*1"
     
+    this->transfer();
     return m_value;
+}
+
+void Neuron::transfer()
+{
+    m_value = 1 / (1 + std::exp(-m_value));
 }
 
 void Neuron::set_value(double input_value)
@@ -80,6 +86,7 @@ VectorDbl Neuron::propogate_error(double error, VectorDbl inputs_from_prev_layer
         // upate coefficient
         m_coefficients->at(i) += learning_rate * m_delta * inputs_from_prev_layer.at(i);
     }
+    
     m_coefficients->at(m_coefficients->size()-1) += learning_rate * m_delta; // bias coefficient update
     
     return return_error;

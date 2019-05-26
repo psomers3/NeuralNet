@@ -11,6 +11,8 @@
 #include <vector>
 #include "Layer.hpp"
 
+
+
 class Brain
 {
 public:
