@@ -21,9 +21,9 @@ int main()
     std::vector<double> training_values = {0,0};
     std::vector<double> correct_output = {0};
     
-    std::cout << "Training the brain to be an XOR gate with 25000 random samples...\n";
+    std::cout << "Training the brain to be an XOR gate with 100,000 random samples...\n";
     
-    for (unsigned long i = 0; i < 25000; i++)
+    for (unsigned long i = 0; i < 100000; i++)
     {
         training_values = {fmod(rand(), 2), fmod(rand(), 2)};
         output = brain.get_output(training_values);
@@ -41,6 +41,7 @@ int main()
         {
             error.at(j) = (correct_output.at(j) - output.at(j));
         }
+        
         brain.back_propagate(error);
     }
     
