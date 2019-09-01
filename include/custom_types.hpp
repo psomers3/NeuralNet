@@ -10,6 +10,7 @@
 #define custom_types_hpp
 
 #include <vector>
+#include <memory>
 
 typedef std::vector<double> VectorDbl;
 

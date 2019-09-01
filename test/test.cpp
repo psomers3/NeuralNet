@@ -18,43 +18,56 @@ int main()
     std::cout << "Done.\n";
     std::vector<double> output(2);
     std::vector<double> error(2);
-    std::vector<double> training_values = {0,0};
-    std::vector<double> correct_output = {0};
+    std::vector<std::vector<double>> correct_output;
+    std::vector<std::vector<double>> training_values;
+    std::vector<std::vector<double>> test_values = {{0,0},{0,1},{1,0},{1,1}};
+    int num_samples;
     
-    std::cout << "Training the brain to be an XOR gate with 100,000 random samples...\n";
     
-    for (unsigned long i = 0; i < 100000; i++)
+    std::cout << "\nInput how many training samples should be used: ";
+    std::cin >> num_samples;
+    std::cout << "Generating training samples..." << std::flush;
+    correct_output.reserve(num_samples);
+    training_values.reserve(num_samples);
+    for (int i = 0; i < num_samples; i++)
     {
-        training_values = {fmod(rand(), 2), fmod(rand(), 2)};
-        output = brain.get_output(training_values);
-        
-        if ((training_values.at(0) == 0) && (training_values.at(1) == 0))
-            correct_output = {1, 0};
-        if ((training_values.at(0) == 0) && (training_values.at(1) == 1))
-            correct_output = {0, 1};
-        if ((training_values.at(0) == 1) && (training_values.at(1) == 0))
-            correct_output = {0, 1};
-        if ((training_values.at(0) == 1) && (training_values.at(1) == 1))
-            correct_output = {1, 0};
-        
-        for (int j = 0; j < 2; j++)
+        training_values.push_back({fmod(rand(), 2), fmod(rand(), 2)});
+        if ((training_values.at(i).at(0) == 0) && (training_values.at(i).at(1) == 0))
+            correct_output.push_back({1, 0});
+        if ((training_values.at(i).at(0) == 0) && (training_values.at(i).at(1) == 1))
+            correct_output.push_back({0, 1});
+        if ((training_values.at(i).at(0) == 1) && (training_values.at(i).at(1) == 0))
+            correct_output.push_back({0, 1});
+        if ((training_values.at(i).at(0) == 1) && (training_values.at(i).at(1) == 1))
+            correct_output.push_back({1, 0});
+    }
+    std::cout << "\n\nTraining the brain to be an XOR gate with "<< std::to_string(num_samples) <<" random samples...\n";
+
+    for (int i = 0; i < num_samples; i++)
+    {
+        output = brain.get_output(training_values.at(i));
+        for (unsigned long j = 0; j < output.size(); j++)
         {
-            error.at(j) = (correct_output.at(j) - output.at(j));
+            error.at(j) = (correct_output.at(i).at(j) - output.at(j));
         }
         
         brain.back_propagate(error);
     }
     
     std::cout << "Training Complete. Testing samples...\n";
-    std::cout << "input values      Output\n";
-    training_values = {0, 0};
-    std::cout << "0      0          " << brain.make_decision(training_values) << "\n";
-    training_values = {0, 1};
-    std::cout << "0      1          " << brain.make_decision(training_values) << "\n";
-    training_values = {1, 0};
-    std::cout << "1      0          " << brain.make_decision(training_values) << "\n";
-    training_values = {1, 1};
-    std::cout << "1      1          " << brain.make_decision(training_values) << "\n";
+    std::cout << "input values    decision        Actual\n";
+    output = brain.get_output(test_values.at(0));
+    std::cout << "0      0          " << brain.make_decision(test_values.at(0))
+    << "          {" << std::to_string(output.at(0)) << ", " << std::to_string(output.at(1)) << "}\n";
+    output = brain.get_output(test_values.at(1));
+    std::cout << "0      1          " << brain.make_decision(test_values.at(1))
+    << "          {" << std::to_string(output.at(0)) << ", " << std::to_string(output.at(1)) << "}\n";
+    output = brain.get_output(test_values.at(2));
+    std::cout << "1      0          " << brain.make_decision(test_values.at(2))
+    << "          {" << std::to_string(output.at(0)) << ", " << std::to_string(output.at(1)) << "}\n";
+    output = brain.get_output(test_values.at(3));
+    std::cout << "1      1          " << brain.make_decision(test_values.at(3))
+    << "          {" << std::to_string(output.at(0)) << ", " << std::to_string(output.at(1)) << "}\n";
 
     return 0;
 }
