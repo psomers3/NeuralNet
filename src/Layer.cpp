@@ -25,7 +25,7 @@ Layer::Layer(unsigned long num_neurons) : m_isOutputLayer(false), m_isInputLayer
 }
 
 Layer::Layer(unsigned long num_neurons, std::shared_ptr<Layer> prev_layer, bool isOutputLayer)
-: m_isOutputLayer(isOutputLayer), m_isInputLayer(false), m_prev_layer(prev_layer), m_num_neurons(num_neurons),  m_num_prev_layer_neurons(prev_layer->number_of_neurons())
+: m_prev_layer(prev_layer), m_isOutputLayer(isOutputLayer), m_isInputLayer(false), m_num_neurons(num_neurons),  m_num_prev_layer_neurons(prev_layer->number_of_neurons())
 {
     m_neurons.reserve(m_num_neurons);
     std::unique_ptr<Neuron> ptr(new Neuron(m_num_prev_layer_neurons));
